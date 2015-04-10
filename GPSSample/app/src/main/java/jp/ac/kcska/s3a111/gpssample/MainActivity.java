@@ -1,39 +1,65 @@
 package jp.ac.kcska.s3a111.gpssample;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+import android.content.Context;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.TextView;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity implements LocationListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //LocationManagerの取得
+        LocationManager locationManager =
+                (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        //Criteriaオブジェクトの生成
+        Criteria criteria = new Criteria();
+        //Accuracy(精度)を指定
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        //PowerRequirement(所要電力)を指定
+        criteria.setPowerRequirement(criteria.POWER_LOW);
+        //LocationProviderの取得
+        String provider = locationManager.getBestProvider(criteria,true);
+
+        //位置情報を表示
+        TextView textView_provider = (TextView)findViewById(R.id.textView_provider);
+        textView_provider.setText("Provider:" + provider);
+        //LocationListenerの登録
+        locationManager.requestLocationUpdates(provider,0,0,this);
+
     }
 
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    public void onLocationChanged(Location location) {
+        //緯度の表示
+        TextView textView_latitude = (TextView)findViewById(R.id.textView_latitude);
+        textView_latitude.setText("Latitude:" + location.getLatitude());
+        //経度の表示
+        TextView textView_longitude = (TextView)findViewById(R.id.textView_longitude);
+        textView_longitude.setText("Longitude:" + location.getLongitude());
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void onStatusChanged(String provider, int status, Bundle extras) {
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+    }
 
-        return super.onOptionsItemSelected(item);
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 }
