@@ -12,19 +12,32 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity implements LocationListener{
 
+    //LocationManagerの取得
+    LocationManager locationManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //LocationManagerの取得
-        LocationManager locationManager =
+        locationManager =
                 (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         //Criteriaオブジェクトの生成
         Criteria criteria = new Criteria();
-        //Accuracy(精度)を指定
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        //PowerRequirement(所要電力)を指定
+        /*Accuracy(精度)を指定
+        * --------------------- ------  ------  ------  ------  ------  --------------
+        *                       COARSE   FINE    HIGH     LOW   MEDIUM  NO_REQUIREMENT
+        * --------------------- ------  ------  ------  ------  ------  --------------
+        *   setAccuracy            ○      ○
+        *   setBearingAccuracy                     ○      ○                  ○
+        *   setHorizontalAccuracy                  ○      ○      ○          ○
+        *   setSpeedAccuracy                       ○      ○                  ○
+        *   setVerticalAccuracy                    ○      ○      ○          ○
+        * --------------------- ------  ------  ------  ------  ------  --------------
+        * なお、それぞれの基準を設定するメソッドによって、指定できる基準の定数が決まっている。
+        * この定数以外だと、IllegalArgumentException 例外がスロー。
+        */
+        criteria.setBearingAccuracy(Criteria.ACCURACY_HIGH);
+        /* PowerRequirement(所要電力)を指定 */
         criteria.setPowerRequirement(criteria.POWER_LOW);
         //LocationProviderの取得
         String provider = locationManager.getBestProvider(criteria,true);
@@ -34,9 +47,7 @@ public class MainActivity extends Activity implements LocationListener{
         textView_provider.setText("Provider:" + provider);
         //LocationListenerの登録
         locationManager.requestLocationUpdates(provider,0,0,this);
-
     }
-
 
     @Override
     public void onLocationChanged(Location location) {
